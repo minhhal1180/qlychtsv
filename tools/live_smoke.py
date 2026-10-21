@@ -31,7 +31,7 @@ with sync_playwright() as p:
                 page.screenshot(path=str(artifacts / "live-login.png"), full_page=True)
             page.locator("#login-form [name=username]").fill(username)
             page.locator("#login-form [name=password]").fill("Demo@123")
-            page.get_by_role("button", name="Đăng nhập", exact=True).click()
+            page.locator("#login-form button[type=submit]").click()
             expect(page.locator("#workspace")).to_be_visible(timeout=20000)
             expect(page.locator("#main h1")).to_be_visible()
             me = page.evaluate("async () => (await fetch('/api/me')).json()")

@@ -36,6 +36,14 @@ python -m playwright install chromium
 python tools/browser_smoke.py
 ```
 
-Đã kiểm tra cú pháp Python, JavaScript và khoảng trắng Git. Chưa kiểm thử tải/hiệu năng, hosting HTTPS hoặc các trình duyệt ngoài Chromium. Bộ test xác nhận các tình huống đã nêu, không chứng minh toàn bộ phần mềm không có lỗi ngoài danh mục.
+Đã kiểm tra cú pháp Python, JavaScript và khoảng trắng Git. Chưa kiểm thử tải/hiệu năng hoặc các trình duyệt ngoài Chromium. Bộ test xác nhận các tình huống đã nêu, không chứng minh toàn bộ phần mềm không có lỗi ngoài danh mục.
 
 GitHub từ chối push workflow do OAuth token thiếu scope `workflow`; vì vậy lưu cấu hình trong `docs/github-actions-tests.yml` dưới dạng mẫu, chưa kích hoạt CI. Các kết quả bên trên được chạy cục bộ thực tế, không phải kết quả GitHub Actions.
+
+## Bổ sung kiểm chứng VPS — 21/10/2026
+
+Đã triển khai lên `student@192.168.2.213`, Ubuntu 24.04/Python 3.12.3, Flask 3.1.3/Gunicorn 26.2.0. Nginx phục vụ tên miền **https://sv23.bcse-vju.com**, dùng HTTPS sẵn có của hạ tầng lab. Service `qlychtsv` ở trạng thái `active` và `enabled`; đã kiểm tra cấu hình Nginx, cấu hình Gunicorn và khởi động lại dịch vụ thành công.
+
+Chạy lại `verify_training.py` ngay trên VPS: 31/31 PASS khi tắt lỗi; 21 PASS, đúng 10 FAIL B01–B10 khi bật lỗi; verifier trả mã 0. Dữ liệu của bộ test nằm trong database tạm, không ảnh hưởng database demo đang chạy.
+
+Kiểm tra trình duyệt bên ngoài bằng `tools/live_smoke.py`: PASS, đăng nhập `sv01`, `sv02`, `cb01`, `admin`; ba vai trò đúng; chặn sinh viên truy cập hồ sơ người khác, chặn admin xử lý hồ sơ; cookie Secure/HttpOnly/SameSite=Lax; giao diện desktop/mobile; không có JavaScript page error. Bản VPS giữ `TRAINING_BUGS=1` theo yêu cầu. Không thử reboot toàn bộ VPS.

@@ -39,6 +39,14 @@ sudo systemctl restart qlychtsv
 
 Nếu thay cấu hình triển khai, chạy lại `bash deploy/install-vps.sh`. Testcase chạy trên database tạm, không thay dữ liệu người dùng. Tài khoản mẫu xem README. Không commit thư mục `instance/` hoặc thông tin đăng nhập hạ tầng.
 
+Kiểm tra từ máy ngoài đã cài dependencies trình duyệt trong `requirements-dev.txt` và Chromium:
+
+```sh
+python tools/live_smoke.py --url https://sv23.bcse-vju.com
+```
+
+Lệnh này chỉ đăng nhập và đọc dữ liệu, không tạo/sửa yêu cầu. Kết quả và ảnh tự lưu trong `test-results/` của máy chạy kiểm tra.
+
 ## Sao lưu dữ liệu
 
 Dùng SQLite backup để có bản sao nhất quán cả khi WAL đang hoạt động:
