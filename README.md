@@ -2,6 +2,8 @@
 
 Bản MVP theo `dactadan.pdf`: sinh viên gửi yêu cầu, cán bộ tiếp nhận và xử lý, quản trị viên quản lý tài khoản/danh mục. Flask + SQLite + HTML/CSS/JavaScript thuần, không cần Node, Docker hay cài database riêng.
 
+**Bản chạy trên VPS:** https://sv23.bcse-vju.com — [cấu hình và cách quản lý dịch vụ](docs/DEPLOYMENT.md).
+
 **Bản mặc định bật 10 lỗi nghiệp vụ có chủ đích để thực hành kiểm thử.** Danh sách và bước tái hiện: [docs/BUGS.md](docs/BUGS.md). Đây là bản thực hành với dữ liệu mẫu.
 
 ## Chạy nhanh
@@ -102,4 +104,4 @@ instance/              Database + khóa phiên, tự sinh và không commit
 
 Database ở `instance/support.db`, tệp đính kèm được lưu trong database để sao lưu đơn giản. Khóa ký phiên ở `instance/secret.key`; giữ kín file này. Để tạo bộ dữ liệu mới, dừng server rồi **đổi tên** `instance/support.db` thành một tên sao lưu; chạy lại server để tự tạo dữ liệu mẫu. Không đổi database khi server còn chạy. Có thể chọn đường dẫn database mới bằng biến `DATABASE` (thư mục cha phải tồn tại).
 
-Các biến tùy chọn: `PORT` (mặc định 5000), `HOST` (127.0.0.1), `TRAINING_BUGS` (1), `SECRET_KEY`, `DATABASE`, `COOKIE_SECURE` (0 cho localhost). Bản này chạy cục bộ phục vụ học/kiểm thử; chưa triển khai hosting công khai. GitHub chứa mã nguồn và CI, GitHub Pages không chạy được backend Flask. Khi triển khai thực tế cần tắt lỗi, thay tài khoản mẫu, dùng HTTPS/WSGI, bật cookie secure và xác định chính sách vận hành.
+Các biến tùy chọn: `PORT` (mặc định 5000), `HOST` (127.0.0.1), `TRAINING_BUGS` (1), `SECRET_KEY`, `DATABASE`, `COOKIE_SECURE` (0 cho localhost, 1 trên VPS HTTPS). VPS sử dụng Gunicorn + Nginx + systemd, có chủ đích giữ 10 lỗi và dữ liệu mẫu để thực hành. GitHub chứa mã nguồn; GitHub Pages không chạy backend Flask. Khi sử dụng nghiệp vụ thật cần tắt lỗi, thay tài khoản mẫu và xác định chính sách vận hành.
