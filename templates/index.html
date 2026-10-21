@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cổng tiếp nhận và theo dõi yêu cầu hỗ trợ sinh viên">
+  <title>StudentCare · Hỗ trợ sinh viên</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <section id="login-screen" class="login-screen">
+    <div class="welcome-panel">
+      <a class="brand brand-light" href="/">s<span>c</span><b>StudentCare</b></a>
+      <div class="welcome-copy"><span class="eyebrow">ĐỒNG HÀNH CÙNG BẠN</span><h1>Mỗi yêu cầu,<br>một sự quan tâm.</h1><p>Một nơi để gửi câu hỏi, kết nối với cán bộ<br>và theo dõi hành trình hỗ trợ của bạn.</p><div class="welcome-cards"><div><span>01</span> Gửi yêu cầu</div><div><span>02</span> Cùng giải quyết</div><div><span>03</span> Nhận kết quả</div></div></div>
+      <p class="welcome-footer">CỔNG HỖ TRỢ SINH VIÊN · MỘT ĐIỂM KẾT NỐI</p>
+    </div>
+    <div class="login-panel"><div class="login-box"><span class="eyebrow">CHÀO MỪNG TRỞ LẠI</span><h2>Đăng nhập</h2><p class="muted">Truy cập không gian hỗ trợ của bạn.</p>
+      <form id="login-form"><label>Tài khoản<input name="username" autocomplete="username" placeholder="Nhập tên tài khoản" required></label><label>Mật khẩu<input name="password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required></label><p id="login-error" class="error" role="alert"></p><button class="primary full" type="submit">Đăng nhập <span>→</span></button></form>
+      <div class="demo-note"><strong>Tài khoản thực hành</strong><p>Sinh viên: <code>sv01</code> / <code>sv02</code><br>Cán bộ: <code>cb01</code> / <code>cb02</code><br>Quản trị: <code>admin</code></p><p>Mật khẩu chung: <code>Demo@123</code></p></div>
+    </div></div>
+  </section>
+  <div id="workspace" class="workspace" hidden>
+    <aside class="sidebar"><a class="brand" href="/">s<span>c</span><b>StudentCare</b></a><div class="sidebar-caption">KHÔNG GIAN LÀM VIỆC</div><nav id="navigation" aria-label="Điều hướng chính"></nav><div class="sidebar-bottom"><div class="support-tip"><span class="tip-mark">?</span><strong>Luôn sẵn sàng hỗ trợ</strong><p>Theo dõi phản hồi và bổ sung thông tin để yêu cầu được xử lý thuận lợi.</p></div><button id="logout" class="logout">↪ Đăng xuất</button></div></aside>
+    <div class="main-shell"><header class="topbar"><div><span class="topbar-dot"></span> Cổng hỗ trợ sinh viên</div><div class="user-info"><span id="user-avatar" class="avatar"></span><div><strong id="user-name"></strong><small id="user-role"></small></div></div></header><main id="main" tabindex="-1"></main><footer class="app-footer">StudentCare <span>Rõ ràng trong từng bước · Kết nối trong từng yêu cầu</span></footer></div>
+  </div>
+  <dialog id="create-dialog"><div class="dialog-heading"><div><span class="eyebrow">BẮT ĐẦU TỪ ĐÂY</span><h2>Tạo yêu cầu hỗ trợ</h2></div><button class="icon-button" id="close-create" aria-label="Đóng">×</button></div><p class="muted">Mô tả rõ vấn đề để cán bộ có thể hỗ trợ bạn tốt hơn.</p><form id="create-form"><label>Loại yêu cầu<select name="type_id" id="create-type" required></select></label><label>Tiêu đề<input name="title" maxlength="200" placeholder="Bạn cần hỗ trợ vấn đề gì?" required></label><label>Nội dung<textarea name="content" rows="5" maxlength="10000" placeholder="Thông tin chi tiết về yêu cầu của bạn…" required></textarea></label><label>Tệp đính kèm <small>(tùy chọn)</small><input name="files" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt"></label><p class="help">Tối đa 3 tệp, 5 MB/tệp. PDF, PNG, JPG hoặc TXT.</p><p class="error" id="create-error" role="alert"></p><div class="dialog-actions"><button type="button" id="cancel-create">Để sau</button><button class="primary" type="submit">Gửi yêu cầu →</button></div></form></dialog>
+</body>
+</html>
