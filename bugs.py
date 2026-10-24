@@ -8,7 +8,7 @@ BUGS = {
     "B05": "Cho từ chối mà không có lý do",
     "B06": "Bổ sung không chuyển về trạng thái đang xử lý",
     "B07": "Cho mở lại yêu cầu đã bị từ chối",
-    "B08": "Tìm kiếm phân biệt chữ hoa và chữ thường",
+    "B08": "Tìm kiếm bỏ sót mã yêu cầu, chỉ tìm theo tiêu đề",
     "B09": "Đánh dấu thông báo đã đọc nhưng không lưu",
     "B10": "Hoàn tất không ghi lịch sử chuyển trạng thái",
 }

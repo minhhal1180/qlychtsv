@@ -5,3 +5,12 @@ instance/
 .env
 test-results/
 .pytest_cache/
+node_modules/
+submission/private/
+submission/evidence/
+submission/data/
+submission/packages/
+submission/tooling/node_modules/
+*.zip
+jmeter.log
+submission/partner.json

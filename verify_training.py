@@ -1,4 +1,4 @@
-"""Success means baseline is clean and training exposes exactly the ten known tests."""
+"""Verify server-side defects; six browser-only defects have separate evidence."""
 import json
 import os
 import subprocess
@@ -19,14 +19,14 @@ for mode, name in [("0", "baseline"), ("1", "training")]:
     reports[name] = json.loads(output.read_text(encoding="utf-8"))
 
 baseline, training = reports["baseline"], reports["training"]
-expected = {f"B{i:02d}" for i in range(1, 11)}
+expected = {f"B{i:02d}" for i in range(1, 11)} | {"P01", "P02", "R01", "R02"}
 observed = {name.split("test_")[-1].split("_")[0] for name in training["failures"]}
 passed = (baseline["total"] == training["total"] and baseline["total"] > 10
           and not baseline["failures"] and not baseline["errors"] and not baseline["skipped"]
           and not training["errors"] and not training["skipped"]
-          and len(training["failures"]) == 10 and observed == expected
-          and all("DefectTests.test_B" in name for name in training["failures"]))
+          and len(training["failures"]) == len(expected) and observed == expected
+          and all("DefectTests.test_B" in name or "ExtraAPITests.test_" in name for name in training["failures"]))
 print(f'\nBaseline: {baseline["total"]} tests, {len(baseline["failures"])} failures, {len(baseline["errors"])} errors.')
 print(f'Training: {training["total"]} tests, {len(training["failures"])} failures, {len(training["errors"])} errors.')
-print("PASS: all ten seeded defects detected; guard tests pass." if passed else "FAIL: outcomes differ from the required defect manifest.")
+print("PASS: 14 server-side defects detected; six visual/content defects require tools/extra_evidence.py." if passed else "FAIL: outcomes differ from the required defect manifest.")
 raise SystemExit(0 if passed else 1)

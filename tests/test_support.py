@@ -104,10 +104,11 @@ class DefectTests(SupportCase):
         self.assertEqual(self.act(ticket_id, "reject", "Không thuộc phạm vi hỗ trợ").status_code, 200)
         self.assertEqual(self.act(ticket_id, "reopen", user="sv01").status_code, 409, "B07: chỉ được mở lại COMPLETED")
 
-    def test_B08_search_ignores_case(self):
+    def test_B08_search_includes_request_code(self):
         ticket_id = self.create(title="Hỗ trợ HỌC PHÍ")
-        items = self.get("sv01", "/requests?q=học%20phí").json["items"]
-        self.assertIn(ticket_id, [item["id"] for item in items], "B08: tìm kiếm phải không phân biệt hoa/thường")
+        code = self.detail(ticket_id)["item"]["code"]
+        items = self.get("sv01", "/requests?q=" + code).json["items"]
+        self.assertIn(ticket_id, [item["id"] for item in items], "B08: tìm kiếm phải bao gồm mã yêu cầu")
 
     def test_B09_read_notification_is_persisted(self):
         ticket_id = self.create()

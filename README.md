@@ -4,7 +4,7 @@ Bản MVP theo `dactadan.pdf`: sinh viên gửi yêu cầu, cán bộ tiếp nh�
 
 **Bản chạy trên VPS:** https://sv23.bcse-vju.com — [cấu hình và cách quản lý dịch vụ](docs/DEPLOYMENT.md).
 
-**Bản mặc định bật 10 lỗi nghiệp vụ có chủ đích để thực hành kiểm thử.** Danh sách và bước tái hiện: [docs/BUGS.md](docs/BUGS.md). Đây là bản thực hành với dữ liệu mẫu.
+**Bản thực hành bật lỗi có chủ đích**, đủ năm nhóm theo checklist. [Tài liệu URD, SRS, API và bàn giao](submission/public) được công khai; Bug Manifest và bằng chứng chi tiết gửi riêng giảng viên trong kho hồ sơ riêng tư.
 
 ## Chạy nhanh
 
@@ -36,7 +36,7 @@ python -m venv .venv
 
 Dùng cửa sổ ẩn danh hoặc trình duyệt khác để đăng nhập hai vai trò cùng lúc. Tài khoản mẫu chỉ được tạo khi database mới chưa có dữ liệu.
 
-## Kiểm tra 10 lỗi
+## Kiểm chứng bản thực hành
 
 Chạy trong thư mục dự án, sau khi đã cài dependencies:
 
@@ -47,16 +47,16 @@ Chạy trong thư mục dự án, sau khi đã cài dependencies:
 Script chạy cùng bộ testcase trên **hai database tạm độc lập**:
 
 - `TRAINING_BUGS=0`: tất cả testcase phải PASS.
-- `TRAINING_BUGS=1`: đúng 10 testcase B01–B10 phải FAIL; các testcase bảo vệ còn lại phải PASS.
+- `TRAINING_BUGS=1`: đúng 14 testcase API đã định danh phải FAIL; các testcase bảo vệ còn lại phải PASS.
 
-Script chỉ trả mã `0` nếu kết quả khớp cả hai điều kiện. Không đổi assertion để biến lỗi thành PASS; log training cố ý có 10 dòng FAIL. JSON kết quả ở `test-results/baseline.json` và `test-results/training.json`.
+Script chỉ trả mã `0` nếu kết quả khớp cả hai điều kiện. Assertion luôn kiểm tra hành vi đúng; log training có 14 testcase FAIL theo danh mục. Sáu trường hợp hiển thị/nội dung được kiểm tra riêng bằng `python tools/extra_evidence.py`. JSON kết quả API ở `test-results/baseline.json` và `test-results/training.json`.
 
-Mẫu GitHub Actions ở [docs/github-actions-tests.yml](docs/github-actions-tests.yml). CI chưa kích hoạt vì OAuth token của phiên bàn giao không có scope `workflow`. Khi cần CI, thêm nội dung file mẫu vào `.github/workflows/tests.yml` bằng tài khoản/quyền cho phép quản lý Actions. Không cần CI để chạy hoặc kiểm thử ứng dụng.
+GitHub Actions được cấu hình ở `.github/workflows/tests.yml`; kết nối hiện tại đã có quyền workflow. CI kiểm chứng cả baseline và bản thực hành. Không cần CI để chạy ứng dụng.
 
 Chạy riêng testcase theo yêu cầu nghiệp vụ:
 
 ```powershell
-# Bản có lỗi: 10 FAIL là kết quả dự kiến
+# Bản có lỗi: 14 API FAIL là kết quả dự kiến
 $env:TRAINING_BUGS="1"
 .venv\Scripts\python -m unittest discover -s tests -v
 
@@ -81,13 +81,12 @@ $env:TRAINING_BUGS="0"
 
 ## Tài liệu và cấu trúc
 
-- [10 lỗi và testcase thủ công](docs/BUGS.md)
-- [CSV testcase để mở bằng Excel](docs/testcases.csv)
+- [Bộ tài liệu bàn giao URD, SRS, API](submission/public)
 - [Phạm vi, lựa chọn cho TBD, ma trận quyền](docs/SCOPE.md)
 - [API và mã lỗi](docs/API.md)
 - [Kết quả kiểm chứng](docs/VALIDATION.md)
 
-Kết quả bàn giao: **31/31 PASS** khi tắt lỗi; **21 PASS + 10 FAIL B01–B10** khi bật lỗi. Kiểm tra trình duyệt Chromium đã qua trên desktop và điện thoại; hướng dẫn chạy lại nằm trong tài liệu kiểm chứng.
+Kết quả bản hồ sơ 25/10: API verifier **35/35 PASS** baseline, **21 PASS + 14 FAIL** training. Bộ chức năng mở rộng: **97/97 PASS** baseline, **83 PASS + 14 FAIL** training (nhiều E2E phát hiện lại cùng bug). Đây là số liệu tự kiểm thử, chưa thay kết quả kiểm thử chéo bạn cặp.
 
 ```text
 app.py                 Backend, phân quyền, workflow và khởi tạo dữ liệu
@@ -104,4 +103,4 @@ instance/              Database + khóa phiên, tự sinh và không commit
 
 Database ở `instance/support.db`, tệp đính kèm được lưu trong database để sao lưu đơn giản. Khóa ký phiên ở `instance/secret.key`; giữ kín file này. Để tạo bộ dữ liệu mới, dừng server rồi **đổi tên** `instance/support.db` thành một tên sao lưu; chạy lại server để tự tạo dữ liệu mẫu. Không đổi database khi server còn chạy. Có thể chọn đường dẫn database mới bằng biến `DATABASE` (thư mục cha phải tồn tại).
 
-Các biến tùy chọn: `PORT` (mặc định 5000), `HOST` (127.0.0.1), `TRAINING_BUGS` (1), `SECRET_KEY`, `DATABASE`, `COOKIE_SECURE` (0 cho localhost, 1 trên VPS HTTPS). VPS sử dụng Gunicorn + Nginx + systemd, có chủ đích giữ 10 lỗi và dữ liệu mẫu để thực hành. GitHub chứa mã nguồn; GitHub Pages không chạy backend Flask. Khi sử dụng nghiệp vụ thật cần tắt lỗi, thay tài khoản mẫu và xác định chính sách vận hành.
+Các biến tùy chọn: `PORT` (mặc định 5000), `HOST` (127.0.0.1), `TRAINING_BUGS` (1), `SECRET_KEY`, `DATABASE`, `COOKIE_SECURE` (0 cho localhost, 1 trên VPS HTTPS). VPS sử dụng Gunicorn + Nginx + systemd, giữ lỗi và dữ liệu mẫu để thực hành. GitHub chứa mã nguồn; GitHub Pages không chạy backend Flask. Khi sử dụng nghiệp vụ thật cần tắt lỗi, thay tài khoản mẫu và xác định chính sách vận hành.

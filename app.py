@@ -357,10 +357,11 @@ def create_app(config=None):
             if len(query) > 200:
                 fail("Từ khóa tối đa 200 ký tự.")
             if enabled(app, "B08"):
-                where.append("(instr(r.title,?)>0 OR instr(r.code,?)>0)")
+                where.append("instr(casefold(r.title),casefold(?))>0")
+                args.append(query)
             else:
                 where.append("(instr(casefold(r.title),casefold(?))>0 OR instr(casefold(r.code),casefold(?))>0)")
-            args.extend([query, query])
+                args.extend([query, query])
         db().create_function("casefold", 1, lambda value: value.casefold())
         sql = "SELECT r.*,t.name type_name,u.name student_name,a.name assignee_name FROM requests r JOIN request_types t ON t.id=r.type_id JOIN users u ON u.id=r.student_id LEFT JOIN users a ON a.id=r.assignee_id"
         sql += " WHERE " + " AND ".join(where) if where else ""
@@ -502,6 +503,8 @@ def create_app(config=None):
         initialize(app, demo=demo)
         click.echo("Đã khởi tạo SQLite. Chạy: python app.py")
 
+    from training_extras import install_training_extras
+    install_training_extras(app)
     return app
 
 

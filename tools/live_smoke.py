@@ -1,6 +1,7 @@
 """Check deployed HTTPS UI and access controls without creating or changing tickets."""
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
@@ -14,7 +15,7 @@ artifacts.mkdir(exist_ok=True)
 errors, results = [], []
 
 with sync_playwright() as p:
-    browser = p.chromium.launch()
+    browser = p.chromium.launch(channel='msedge' if sys.platform == 'win32' else None)
     contexts = []
     pages = {}
     try:

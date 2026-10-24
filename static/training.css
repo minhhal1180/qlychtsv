@@ -1,0 +1,17 @@
+/* Deliberate visual defects V01-V03, loaded only in training mode. */
+@media (min-width: 769px) {
+  .detail-grid > div > .panel:first-child .page-heading h2 {
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+}
+@media (max-width: 420px) {
+  #create-dialog {
+    min-width: 600px;
+  }
+  .table-wrap td .status {
+    visibility: hidden;
+  }
+}

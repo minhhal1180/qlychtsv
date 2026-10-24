@@ -30,7 +30,7 @@ def main():
         base = f"http://127.0.0.1:{server.server_port}"
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch()
+                browser = p.chromium.launch(channel='msedge' if sys.platform == 'win32' else None)
                 contexts = []
                 def login(username, mobile=False):
                     context = browser.new_context(viewport={"width": 390 if mobile else 1440, "height": 844 if mobile else 1000})

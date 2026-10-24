@@ -7,6 +7,10 @@
   <title>StudentCare · Hỗ trợ sinh viên</title>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/app.js" defer></script>
+  {% if training_extras %}
+  <link rel="stylesheet" href="/static/training.css">
+  <script src="/static/training.js" defer></script>
+  {% endif %}
 </head>
 <body>
   <div id="toast" role="status" aria-live="polite" hidden></div>
