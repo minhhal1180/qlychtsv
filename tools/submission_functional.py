@@ -27,6 +27,9 @@ sys.path.insert(0, str(ROOT))
 from app import create_app, initialize
 
 CASES = []
+OUTPUT_BASE = ROOT / 'submission'
+RESPONSIBLE_TESTER = 'Bùi Xuân Minh – 23110193'
+RUN_SCOPE = 'Tự kiểm thử hệ thống StudentCare; chưa thay cho kiểm thử chéo bạn cặp.'
 SOURCE_HASHES = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
                  for name in ("app.py", "bugs.py", "schema.sql")}
 
@@ -636,7 +639,7 @@ def json_value(value):
 
 
 def run_mode(mode):
-    output=ROOT/"submission"/"evidence"/"functional"/mode
+    output=OUTPUT_BASE/"evidence"/"functional"/mode
     output.mkdir(parents=True,exist_ok=True)
     results=[]
     training=mode=="training"
@@ -653,7 +656,8 @@ def run_mode(mode):
             row={k:v for k,v in definition.items() if k!="fn"}
             start=time.perf_counter()
             row.update(executed_at=datetime.now(timezone.utc).isoformat(),mode=mode,
-                       tester="Bùi Xuân Minh – 23110193",scope="Tự kiểm thử hệ thống StudentCare; chưa thay cho kiểm thử chéo bạn cặp.",
+                       tester=RESPONSIBLE_TESTER,scope=RUN_SCOPE,
+                       execution_operator="Codex automation at user request; both applications AI-assisted, not blind testing",
                        environment={"runner":"Flask test_client","database":"isolated temporary SQLite","python":sys.version.split()[0]})
             try:
                 definition["fn"](sandbox)
@@ -671,11 +675,12 @@ def run_mode(mode):
                 row["data"]={"actors":list(dict.fromkeys(step["actor"] for step in operations)),
                              "requests":[{"method":step["method"],"path":step["path"],"body":step["input"]}
                                          for step in operations if step["input"] is not None]}
-            row["evidence"]=f"submission/evidence/functional/{mode}/{row['id']}.json"
+            row["evidence"]=f"evidence/functional/{mode}/{row['id']}.json"
             (output/(row["id"]+".json")).write_text(json.dumps(row,ensure_ascii=False,indent=2,default=json_value),encoding="utf-8")
             results.append(row)
             print(f"{mode:8} {row['id']} {row['function_id']} {row['status']:5} {row['title']}",flush=True)
-    report={"scope":"Self-test; not independent paired-student test", "mode":mode,
+    report={"scope":RUN_SCOPE, "mode":mode,"responsible_tester":RESPONSIBLE_TESTER,
+            "execution_operator":"Codex automation; both apps AI-assisted, not blind testing",
             "source_sha256":SOURCE_HASHES,
             "started_from":"Fresh seed copied into an independent database for each testcase",
             "executed_at":datetime.now(timezone.utc).isoformat(),"total":len(results),
@@ -686,10 +691,15 @@ def run_mode(mode):
 
 
 def main():
+    global OUTPUT_BASE, RESPONSIBLE_TESTER, RUN_SCOPE
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode",choices=("baseline","training","both"),default="both")
+    parser.add_argument("--output-base",type=Path,default=OUTPUT_BASE)
+    parser.add_argument("--responsible-tester",default=RESPONSIBLE_TESTER)
+    parser.add_argument("--scope",default=RUN_SCOPE)
     args=parser.parse_args()
-    data=ROOT/"submission"/"data"
+    OUTPUT_BASE=args.output_base.resolve();RESPONSIBLE_TESTER=args.responsible_tester;RUN_SCOPE=args.scope
+    data=OUTPUT_BASE/"data"
     data.mkdir(parents=True,exist_ok=True)
     definitions=[{k:v for k,v in item.items() if k!="fn"} for item in CASES]
     (data/"functional_cases.json").write_text(json.dumps(definitions,ensure_ascii=False,indent=2),encoding="utf-8")

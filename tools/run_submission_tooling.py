@@ -80,7 +80,10 @@ def main():
         server=make_server("127.0.0.1",0,application,threaded=True,request_handler=QuietHandler)
         thread=Thread(target=server.serve_forever,daemon=True);thread.start()
         base=f"http://127.0.0.1:{server.server_port}"
-        report["base_url"]=base
+        if args.only_ui:
+            report["ui_rerun_base_url"]=base
+        else:
+            report["base_url"]=base
         try:
             env={**os.environ,"BASE_URL":base}
             if not args.only_jmeter:

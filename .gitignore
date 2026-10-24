@@ -14,3 +14,6 @@ submission/tooling/node_modules/
 *.zip
 jmeter.log
 submission/partner.json
+submission/partner/
+submission/pair/
+submission/pair-runs/

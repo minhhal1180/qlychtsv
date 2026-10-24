@@ -49,8 +49,22 @@ for nfr,klass,name,title,expected in checks:
 
 metrics_path=ROOT/'submission/evidence/tooling/summary.json'
 metrics=json.loads(metrics_path.read_text(encoding='utf-8')) if metrics_path.exists() else None
+comparison_path=ROOT/'submission/evidence/tooling/nfr-comparison.json'
+comparison=json.loads(comparison_path.read_text(encoding='utf-8')) if comparison_path.exists() else {}
+checks=comparison.get('checks',[])
+for requirement in ('NFR-01','NFR-02'):
+    measured=[c for c in checks if c['requirement']==requirement]
+    if measured:
+        record=next(r for r in rows if r['requirement']==requirement)
+        record['actual']={'JMeter_load':measured,'pilot_1user':record['actual']}
+        record['status']='PASS' if all(c['result']=='Pass' for c in measured) else 'FAIL'
+        record['evidence']='evidence/tooling/nfr-comparison.json; evidence/tooling/jmeter-load/results.jtl'
+        record['method']='Apache JMeter5.6.3, load 2users,300s; pilotHTTP tham chiếu'
+stage_checks=[c for c in checks if c['requirement']=='NFR-03']
 add('NFR-03','Danh sách dưới tải bậc1→2→4','P95≤1000ms,errors<1%,mỗi bậc120s',
-    'Chờ JMeter hoàn tất; xem báo cáo tooling.', 'NOT_RUN','evidence/tooling/jmeter-step/metrics.json',method='Apache JMeter5.6.3')
+    stage_checks if stage_checks else 'Chờ JMeter hoàn tất; xem báo cáo tooling.',
+    ('PASS' if all(c['result']=='Pass' for c in stage_checks) else 'FAIL') if stage_checks else 'NOT_RUN',
+    'evidence/tooling/nfr-comparison.json; evidence/tooling/jmeter-step/results.jtl',method='Apache JMeter5.6.3')
 report={'executed_at':datetime.now(timezone.utc).isoformat(),'scope':'Self-test only; independent peer evidence pending',
         'total':len(rows),'cases':rows,'counts':{key:sum(r['status']==key for r in rows) for key in ['PASS','FAIL','ERROR','NOT_RUN']}}
 (OUT/'results.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

@@ -1,5 +1,7 @@
 # VPS sv23
 
+Bản cập nhật 25/10/2026 đã sao lưu database bằng SQLite backup, cập nhật mã và khởi động lại dịch vụ. Kiểm chứng trên VPS: baseline 35/35 PASS; training 21 PASS/14 API FAIL theo danh mục. Các phép đo tải của bộ hồ sơ thực hiện trên bản sao cục bộ, không ghi là hiệu năng VPS.
+
 Địa chỉ ứng dụng: **https://sv23.bcse-vju.com**. Máy đích: Ubuntu 24.04, user `student`, IP nội bộ `192.168.2.213`. Mã nguồn tại `/home/student/qlychtsv`, database/tệp/khóa phiên trong `instance/` và không đưa lên GitHub. Không lưu mật khẩu SSH trong repo.
 
 Luồng truy cập: HTTPS của portal/Cloudflare → Nginx cổng 80 theo Host `sv23.bcse-vju.com` → Gunicorn `127.0.0.1:8001` → Flask/SQLite. Giữ nguyên virtual host mặc định và các dịch vụ khác. Cookie phiên Secure/HttpOnly/SameSite=Lax. Ứng dụng chạy dưới user `student`, systemd tự khởi động khi máy boot và khởi động lại khi process lỗi.

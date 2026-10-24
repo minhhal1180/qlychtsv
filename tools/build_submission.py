@@ -27,7 +27,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -38,6 +38,7 @@ SELF = PRIVATE / 'self-test'
 for folder in (PUBLIC, PRIVATE, SELF):
     folder.mkdir(parents=True, exist_ok=True)
 IDENTITY = 'Bùi Xuân Minh – 23110193'
+PROJECT = 'StudentCare v1.1'
 DAY = '25/10/2026'
 PARTNER_FILE = BASE / 'partner.json'
 PARTNER = json.loads(PARTNER_FILE.read_text(encoding='utf-8')) if PARTNER_FILE.exists() else {}
@@ -126,7 +127,7 @@ def write_document(stem, title, body, folder=PUBLIC):
         'cóhashfile':'có hash file','thuộcactive':'thuộc active'
     }.items():
         body = body.replace(before, after)
-    full=f'# {title}\n\n{IDENTITY} · {DAY} · StudentCare v1.1\n\n'+body.strip()+'\n'
+    full=f'# {title}\n\n{IDENTITY} · {DAY} · {PROJECT}\n\n'+body.strip()+'\n'
     path=folder/(stem+'.md'); path.write_text(full,encoding='utf-8')
     document=Document()
     document.sections[0].top_margin=Cm(1.8);document.sections[0].bottom_margin=Cm(1.8)
@@ -135,6 +136,14 @@ def write_document(stem, title, body, folder=PUBLIC):
     lines=full.splitlines();index=0
     while index<len(lines):
         line=lines[index]
+        image_match=re.match(r'^!\[(.*?)\]\((.*?)\)$',line)
+        if image_match:
+            image_path=BASE/image_match[2].lstrip('./')
+            if image_path.exists():
+                document.add_picture(str(image_path),width=Cm(16))
+                document.add_paragraph(image_match[1],style='Caption')
+            index+=1
+            continue
         if line.startswith('|') and index+1<len(lines) and re.match(r'^\|[\s:|\-]+\|$',lines[index+1]):
             data=[]
             while index<len(lines) and lines[index].startswith('|'):
@@ -151,7 +160,7 @@ def write_document(stem, title, body, folder=PUBLIC):
         elif line.startswith('### '):document.add_heading(line[4:],2)
         elif line.strip() and not line.startswith('```'):document.add_paragraph(line)
         index+=1
-    footer=document.sections[0].footer.paragraphs[0];footer.text='StudentCare · 23110193 · Tài liệu chuẩn bị bằng AI, số liệu lấy từ bằng chứng thực thi'
+    footer=document.sections[0].footer.paragraphs[0];footer.text=PROJECT+' · '+IDENTITY+' · AI-assisted, số liệu từ bằng chứng thực thi'
     footer.runs[0].font.size=Pt(8)
     document.save(folder/(stem+'.docx'))
     pdf(full,folder/(stem+'.pdf'))
@@ -167,6 +176,20 @@ def pdf(text,path):
     styles.add(ParagraphStyle(name='VNHead',fontName='ArialUnicodeBold',fontSize=13,leading=18,spaceBefore=13,spaceAfter=8))
     story=[]
     for line in text.splitlines():
+        image_match=re.match(r'^!\[(.*?)\]\((.*?)\)$',line)
+        if image_match:
+            image_path=BASE/image_match[2].lstrip('./')
+            if image_path.exists():
+                from PIL import Image as PILImage
+                with PILImage.open(image_path) as source:
+                    width,height=source.size
+                draw_width=17*cm
+                draw_height=draw_width*height/width
+                if draw_height>20*cm:
+                    draw_width*=20*cm/draw_height
+                    draw_height=20*cm
+                story.extend([Image(str(image_path),draw_width,draw_height),Paragraph(html.escape(image_match[1]),styles['VN'])])
+            continue
         if line.startswith('```') or re.match(r'^\|[\s:|\-]+\|$',line):continue
         if not line.strip():story.append(Spacer(1,4));continue
         style=styles['VNTitle'] if line.startswith('# ') else styles['VNHead'] if line.startswith('##') else styles['VN']
@@ -175,7 +198,7 @@ def pdf(text,path):
         story.append(Paragraph(content,style))
     def foot(canvas,doc):
         canvas.setFont('ArialUnicode',8);canvas.setFillColor(colors.grey)
-        canvas.drawString(1.6*cm,1*cm,'StudentCare · Bùi Xuân Minh · 23110193')
+        canvas.drawString(1.6*cm,1*cm,PROJECT+' · '+IDENTITY)
         canvas.drawRightString(19.4*cm,1*cm,str(doc.page))
     SimpleDocTemplate(str(path),pagesize=(21*cm,29.7*cm),rightMargin=1.7*cm,leftMargin=1.7*cm,topMargin=1.6*cm,bottomMargin=1.6*cm).build(story,onFirstPage=foot,onLaterPages=foot)
 
@@ -396,6 +419,12 @@ Tảithường2users,ramp10s,300s. Tăngtải1→2→4,mỗibậc120s,ramp5s; ti
         if report:
             body+=json.dumps(report,ensure_ascii=False,indent=2)+'\n'
         else:body+='CHƯA CÓ KẾT QUẢ HOÀN TẤT – không ghi Pass hay số đo dự đoán.\n'
+        for filename,caption in [('response-times-over-time.png','Response Times Over Time'),('throughput-over-time.png','Throughput'),('active-threads-over-time.png','Active Threads')]:
+            if (BASE/'evidence/tooling'/group/filename).exists():
+                body+=f'![{group}: {caption} – ảnh dashboard Apache JMeter gốc](../evidence/tooling/{group}/{filename})\n'
+    comparisons=load_json(BASE/'evidence/tooling/nfr-comparison.json',{}).get('checks',[])
+    body+='### Bảng đối chiếu từng ngưỡng hiệu năng\n'+table(['Mã NFR','Kịch bản','Request','Ngưỡng P95 (ms)','P95 đo (ms)','Lỗi %','Kết luận'],[
+        (r['requirement'],r['scenario'],r['sampler'],r['threshold_ms'],r['p95_ms'],r['error_percent'],r['result']) for r in comparisons])+'\n'
     body+='''### 5.5. Nhận xét
 Đọc ResponseTimesOverTime/Throughput/ActiveThreads trongdashboardgốc. SoP95Searchvới800ms,Notifications900ms,List1000ms vàerror<1%; không tính thinktimevàoHTTPelapsed. ĐộtrễSearch/Notificationscốýsẽkhôngđạt ngưỡng; dùng sốJTLthực thay vì suy từsleep. Chỉ đo đến4user; chưa đủcăn cứkếtluận điểm bãohòa hoặc nănglựcVPS. Giảthuyếtbottleneckđượcphânbiệtvớithựcđo.
 ## 6. Rủi ro/hạn chế

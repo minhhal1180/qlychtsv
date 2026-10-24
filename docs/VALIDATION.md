@@ -1,5 +1,7 @@
 # Kiểm chứng bản bàn giao
 
+> Các phần ngày 21/10 dưới đây là lịch sử bản đầu. Bản hồ sơ 25/10 đã mở rộng: API verifier 35/35 PASS baseline, training đúng 14 API FAIL; 97 testcase chức năng cho 97 PASS baseline và 83 PASS/14 FAIL training. Sáu lỗi Visual/Content có bằng chứng trình duyệt riêng; ba phát hiện exploratory giữ riêng. SRS và bộ biểu mẫu hiện tại nằm trong `submission/public`; kết quả chi tiết gửi riêng giảng viên. GitHub Actions hiện đã được kích hoạt, khác hạn chế quyền workflow ở bản đầu.
+
 Ngày chạy: 21/10/2026. Môi trường: Windows, Python 3.11; Chromium headless cho kiểm tra trình duyệt. Mỗi lần chạy dùng database tạm, không sửa dữ liệu thực hành trong `instance/`.
 
 ## Kiểm thử API tự động
